@@ -1,0 +1,18 @@
+titleOnly: true
+types:
+  - feat
+  - fix
+  - chore
+  - docs
+  - style
+  - refactor
+  - test
+  - ci
+scopes:
+  - core
+  - api
+  - utils
+
+wip: true
+validateSingleCommit: true
+validateSingleCommitMatchesPrTitle: true

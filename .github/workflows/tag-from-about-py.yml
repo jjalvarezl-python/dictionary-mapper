@@ -1,0 +1,59 @@
+name: Semantic version tag
+
+on:
+  workflow_run:
+    workflows: ["Run pre-commit hooks"]
+    types:
+      - completed
+
+permissions:
+  contents: write
+  actions: write 
+
+jobs:
+  tag-version:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: pip install hatch hatch-pip-deepfreeze
+
+      - name: Set git user
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Let commitizen decide if new version
+        run: hatch run cz bump --yes
+      
+      - name: Push commits and tags
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          git push origin HEAD:master --follow-tags
+
+      - name: Get latest tag
+        id: get_tag
+        run: echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+
+      - name: Extract changelog for latest tag
+        id: changelog
+        run: |
+          hatch run cz changelog --dry-run ${{ steps.get_tag.outputs.tag }} > changelog.txt
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.get_tag.outputs.tag }}
+          body_path: changelog.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

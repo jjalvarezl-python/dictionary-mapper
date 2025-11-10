@@ -1,0 +1,22 @@
+repos:
+  - repo: local
+    hooks:
+      - id: typing-checker
+        name: typing-checker
+        entry: hatch run mypy-check
+        language: system
+        types: [python]
+        pass_filenames: false
+        verbose: true
+      - id: linter-checker
+        name: linter-checker
+        entry: hatch run ruff-check
+        language: system
+        types: [python]
+        pass_filenames: false
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.27.0
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
+        additional_dependencies: [commitizen]

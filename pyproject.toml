@@ -1,0 +1,140 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dictionary-mapper"
+dynamic = ["version"]
+description = "A tool for mapping and transforming dictionaries based on predefined rules."
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+authors = [{ name = "Jhon Alvarez", email = "jjalvarezl@unicauca.edu.co" }]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+  "anyio>=4.11.0",
+  "certifi>=2025.10.5",
+  "cffi>=2.0.0",
+  "click>=8.3.0",
+  "cryptography>=46.0.3",
+  "filelock>=3.20.0",
+  "httpcore>=1.0.9",
+  "httpx>=0.28.1",
+  "idna>=3.11",
+  "sniffio>=1.3.1",
+  "zstandard>=0.25.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=9.0.0",
+  "ruff>=0.14.4",
+  "mypy>=1.18.2",
+  "hatch>=1.15.1",
+  "hatchling>=1.27.0",
+  "rich>=14.2.0",
+  "typing_extensions>=4.15.0",
+  "pre_commit>=4.4.0",
+  "coverage>=7.3.3",
+  "commitizen>=3.27.0"
+]
+
+[tool.hatch.envs.default]
+path = ".venv"
+features = ["dev"]
+
+[tool.hatch.envs.default.scripts]
+prepare = "pre-commit install --hook-type pre-commit --hook-type pre-push --hook-type commit-msg"
+mypy-check = "MYPYPATH=src mypy --install-types --explicit-package-bases --non-interactive {args:src/dictionary_mapper tests}"
+ruff-check = "ruff check src/dictionary_mapper tests"
+ruff-fix = "ruff check --fix src/dictionary_mapper tests"
+tests = "coverage run -m pytest -v && coverage report -m && coverage xml -o cov.xml"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.0.0"
+tag_format = "v$version"
+version_files = [
+  "src/dictionary_mapper/__about__.py:__version__",
+  "pyproject.toml:version",
+]
+bump_message = "bump: version $current_version → $new_version"
+update_changelog_on_bump = true
+annotated_tag = true
+
+[project.urls]
+Documentation = "https://github.com/jjalvarezl-python/dictionary-mapper#readme"
+Issues = "https://github.com/jjalvarezl-python/dictionary-mapper/issues"
+Source = "https://github.com/jjalvarezl-python/dictionary-mapper"
+
+[tool.hatch.version]
+path = "src/dictionary_mapper/__about__.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = ["mypy>=1.0.0"]
+
+[tool.ruff]
+fix = true
+line-length = 120
+target-version = "py312"
+lint.select = ["ALL"]
+lint.ignore = [
+  "D203", # ignore: incorrect-blank-line-before-class (conflicts with D211)
+  "D212", # ignore: multi-line-summary-first-line (conflicts with D213)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*" = ["S101", "D100", "D101", "D102", "D103", "D104"]
+"test_*.py" = ["S101", "D100", "D101", "D102", "D103", "D104"]
+
+[tool.mypy]
+strict = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_any_generics = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+disallow_any_unimported = true
+disallow_any_expr = true
+disallow_any_decorated = true
+disallow_any_explicit = true
+
+[tool.coverage.report]
+format = "markdown"
+exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
+omit = ["src/dictionary_mapper/__about__.py", "src/dictionary_mapper/__init__.py", "tests/*"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra -q --import-mode=importlib"
+testpaths = ["tests", "*/dictionary-mapper/tests"]
+pythonpath = ["src"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "src/dictionary_mapper/py.typed",
+  "src/dictionary_mapper/__about__.py",
+]
+
+[tool.hatch.build.targets.wheel]
+include = [
+  "src/dictionary_mapper/py.typed",
+  "src/dictionary_mapper/__about__.py",
+]

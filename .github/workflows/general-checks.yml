@@ -1,0 +1,45 @@
+name: Run pre-commit hooks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+  push:
+    branches:
+      - '**'
+
+jobs:
+  pre-commit:
+    name: Pre-commit checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: pip install hatch hatch-pip-deepfreeze
+
+      - name: Run mypy type checks
+        run: hatch run mypy-check
+
+      - name: Run Ruff lint checks
+        run: hatch run ruff-check
+      
+      - name: Run tests
+        run: hatch run tests
+
+  pr-title-check:
+    if: github.event_name == 'pull_request'
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR title with Conventional Commit rules
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "tamasfe.even-better-toml",
+        "ms-python.python",
+        "ms-python.debugpy",
+        "matangover.mypy",
+        "charliermarsh.ruff",
+        "ryanluker.vscode-coverage-gutters"
+    ]
+}
