@@ -22,6 +22,7 @@ Example:
 ```python
 from dictionary_mapper import SpecEntry
 
+
 spec: SpecEntry = {
     "body.int_field": "int_field",
     "body.str_field": "str_field",
@@ -44,6 +45,7 @@ spec: SpecEntry = {
 from typing import cast
 from dictionary_mapper import RawDictionaryMapper
 ...
+
 
 src: dict[str, object] = {
     "body": {
@@ -83,6 +85,7 @@ assert maped_dict["str_list"] == ["1", "2", "3"]
 ...
 from dictionary_mapper import TypedDictionaryMapper
 ...
+
 
 class MyNestedDict(TypedDict):
     nested_int: int
