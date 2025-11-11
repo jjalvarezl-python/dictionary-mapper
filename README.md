@@ -1,6 +1,6 @@
 # Dictionary Mapper
 
-[![PyPI - Version](https://img.shields.io/pypi/v/dictionary-mapper.svg)](https://pypi.org/project/dictionary-mapper)
+[![GitHub tag](https://img.shields.io/github/v/tag/jjalvarezl-python/dictionary-mapper?sort=semver)](https://github.com/jjalvarezl-python/dictionary-mapper/tags)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dictionary-mapper.svg)](https://pypi.org/project/dictionary-mapper)
 
 -----
@@ -21,6 +21,7 @@ Example:
 
 ```python
 from dictionary_mapper import SpecEntry
+
 
 spec: SpecEntry = {
     "body.int_field": "int_field",
@@ -44,6 +45,7 @@ spec: SpecEntry = {
 from typing import cast
 from dictionary_mapper import RawDictionaryMapper
 ...
+
 
 src: dict[str, object] = {
     "body": {
@@ -83,6 +85,7 @@ assert maped_dict["str_list"] == ["1", "2", "3"]
 ...
 from dictionary_mapper import TypedDictionaryMapper
 ...
+
 
 class MyNestedDict(TypedDict):
     nested_int: int
