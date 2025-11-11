@@ -112,6 +112,53 @@ assert maped_dict["int_list"] == [1, 2, 3]
 assert maped_dict["str_list"] == ["1", "2", "3"]
 ```
 
+4. You can add complex lists on the target, but you'll need to add allways the index to that lists, otherwhise will be recognized as primitive value.
+
+```python
+src = {
+    ...
+    "complex_list": [
+        {
+            "nested_int": 10,
+            "nested_str": "complex",
+        },
+        {"nested_int": 5},
+        {},
+        {
+            "nested_str": "double complex",
+        },
+    ],
+    ...
+}
+
+...
+
+spec = {
+    ...
+    "body.complex_list[0].nested_int": "complex_list[1].secondary_field[0].secondary_int",
+    "body.complex_list[0].nested_str": "complex_list[1].secondary_field[3].secondary_str",
+    "body.complex_list[2].nested_int": "complex_list[1].secondary_field[1].secondary_int",
+    "body.complex_list[3].nested_str": "complex_list[1].secondary_field[2].secondary_str",
+    "body.complex_list[1].nested_int": {
+        "path": "complex_list[0].secondary_field[1].secondary_int",
+        "default": 0,
+        "transform": lambda x: cast("int", x) * 2,
+    },
+    ...
+}
+
+...
+
+EXPECTED_INT_FIELD = 10
+
+assert maped_dict["complex_list"][1]["secondary_field"][0]["secondary_int"] == EXPECTED_INT_FIELD
+assert maped_dict["complex_list"][1]["secondary_field"][3]["secondary_str"] == "complex"
+assert maped_dict["complex_list"][1]["secondary_field"][1]["secondary_int"] is None
+assert maped_dict["complex_list"][1]["secondary_field"][2]["secondary_str"] == "double complex"
+assert maped_dict["complex_list"][0]["secondary_field"][1]["secondary_int"] == EXPECTED_INT_FIELD  # Transformed
+
+```
+
 ## Installation
 
 Add recommended extensions at `.vscode/extensions.json`. Then run:

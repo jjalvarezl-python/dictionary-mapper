@@ -59,14 +59,41 @@ class RawDictionaryMapper:
 
     def _set_by_path(self, dst: MutableMapping[str, object], path: str, value: object) -> None:
         parts = path.split(".")
-        cur: MutableMapping[str, object] = dst
-        for p in parts[:-1]:
-            existing = cur.get(p)
-            if not isinstance(existing, MutableMapping):
-                existing = {}
-                cur[p] = existing
-            cur = cast("MutableMapping[str, object]", existing)
-        cur[parts[-1]] = value
+        if not parts:
+            return
+
+        part = parts[0]
+        m = re.match(r"^([^\[]+)\[(\d+)\]$", part)
+        sub_m = re.match(r"^([^\[]+)\[(\d+)\]\.([^\[]]+)$", part)
+
+        if len(parts) == 1:
+            if sub_m:
+                key, idx, subkey = sub_m.group(1), int(sub_m.group(2)), sub_m.group(3)
+                lst: list[dict[str, object]] = cast("list[dict[str, object]]", dst.setdefault(key, []))
+                while len(lst) <= idx:
+                    lst.append({})
+                lst[idx][subkey] = value
+            elif m:
+                key, idx = m.group(1), int(m.group(2))
+                lst_items: list[object] = cast("list[object]", dst.setdefault(key, []))
+                while len(lst_items) <= idx:
+                    lst_items.append({})
+                lst_items[idx] = value
+            else:
+                dst[part] = value
+            return
+
+        if m:
+            key, idx = m.group(1), int(m.group(2))
+            lst_nested: list[object] = cast("list[object]", dst.setdefault(key, []))
+            while len(lst_nested) <= idx:
+                lst_nested.append({})
+            if not isinstance(lst_nested[idx], dict):
+                lst_nested[idx] = {}
+            self._set_by_path(cast("MutableMapping[str, object]", lst_nested[idx]), ".".join(parts[1:]), value)
+        else:
+            child = dst.setdefault(part, {})
+            self._set_by_path(cast("MutableMapping[str, object]", child), ".".join(parts[1:]), value)
 
     def create_transformed_dict(self, source: dict[str, object], spec: SpecEntry) -> dict[str, object]:
         """
@@ -132,4 +159,3 @@ class TypedDictionaryMapper[T: Mapping[str, object]](RawDictionaryMapper):
 
         """
         return cast("T", super().create_transformed_dict(source, spec))
-

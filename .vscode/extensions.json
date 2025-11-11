@@ -5,6 +5,7 @@
         "ms-python.debugpy",
         "matangover.mypy",
         "charliermarsh.ruff",
-        "ryanluker.vscode-coverage-gutters"
+        "ryanluker.vscode-coverage-gutters",
+        "github.vscode-github-actions"
     ]
 }

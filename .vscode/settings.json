@@ -1,6 +1,7 @@
 {
     "mypy.dmypyExecutable": "${workspaceFolder}/.venv/bin/dmypy",
     "mypy.configFile": "./pyproject.toml",
+    "mypy.mypyExecutable": "${workspaceFolder}/.venv/bin/mypy",
     "[python]": {
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "charliermarsh.ruff",
@@ -25,5 +26,9 @@
         "coverage.xml",
         "jacoco.xml",
         "coverage.cobertura.xml"
+    ],
+    "python.autoComplete.extraPaths": ["./src"],
+    "python.analysis.extraPaths": [
+        "./src"
     ]
 }
