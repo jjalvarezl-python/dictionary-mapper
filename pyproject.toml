@@ -64,7 +64,7 @@ tests = "coverage run -m pytest -v && coverage report -m && coverage xml -o cov.
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.2.0"
+version = "0.3.0"
 tag_format = "v$version"
 version_files = [
   "src/dictionary_mapper/__about__.py:__version__",
