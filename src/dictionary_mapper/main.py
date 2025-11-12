@@ -57,43 +57,38 @@ class RawDictionaryMapper:
                 cur = default
         return cur
 
-    def _set_by_path(self, dst: MutableMapping[str, object], path: str, value: object) -> None:
+    def _set_by_path(self, dst: MutableMapping[str, object], path: str, value: object) -> None:  # noqa: C901
         parts = path.split(".")
-        if not parts:
-            return
+        cur = dst
+        for i, part in enumerate(parts):
+            m = re.match(r"^([^\[]+)\[(\d+)\]$", part)
+            is_last = i == len(parts) - 1
 
-        part = parts[0]
-        m = re.match(r"^([^\[]+)\[(\d+)\]$", part)
-        sub_m = re.match(r"^([^\[]+)\[(\d+)\]\.([^\[]]+)$", part)
-
-        if len(parts) == 1:
-            if sub_m:
-                key, idx, subkey = sub_m.group(1), int(sub_m.group(2)), sub_m.group(3)
-                lst: list[dict[str, object]] = cast("list[dict[str, object]]", dst.setdefault(key, []))
-                while len(lst) <= idx:
-                    lst.append({})
-                lst[idx][subkey] = value
-            elif m:
+            if m:
                 key, idx = m.group(1), int(m.group(2))
-                lst_items: list[object] = cast("list[object]", dst.setdefault(key, []))
-                while len(lst_items) <= idx:
-                    lst_items.append({})
-                lst_items[idx] = value
+                lst: list[object] = cast("list[object]", cur.setdefault(key, []))
+                while len(lst) <= idx:
+                    if isinstance(value, str):
+                        lst.append("")
+                    elif isinstance(value, (int, float)):
+                        lst.append(-1)
+                    elif isinstance(value, dict):
+                        lst.append({})
+                    else:
+                        lst.append(None)
+                if is_last:
+                    lst[idx] = value
+                    return
+                if not isinstance(lst[idx], dict):
+                    lst[idx] = {}
+                cur = cast("MutableMapping[str, object]", lst[idx])
             else:
-                dst[part] = value
-            return
-
-        if m:
-            key, idx = m.group(1), int(m.group(2))
-            lst_nested: list[object] = cast("list[object]", dst.setdefault(key, []))
-            while len(lst_nested) <= idx:
-                lst_nested.append({})
-            if not isinstance(lst_nested[idx], dict):
-                lst_nested[idx] = {}
-            self._set_by_path(cast("MutableMapping[str, object]", lst_nested[idx]), ".".join(parts[1:]), value)
-        else:
-            child = dst.setdefault(part, {})
-            self._set_by_path(cast("MutableMapping[str, object]", child), ".".join(parts[1:]), value)
+                if is_last:
+                    cur[part] = value
+                    return
+                if part not in cur or not isinstance(cur[part], dict):
+                    cur[part] = {}
+                cur = cast("MutableMapping[str, object]", cur[part])
 
     def create_transformed_dict(self, source: dict[str, object], spec: SpecEntry) -> dict[str, object]:
         """
