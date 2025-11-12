@@ -8,4 +8,4 @@ This module contains the version number and other metadata for the dictionary-ma
 #
 # SPDX-License-Identifier: MIT
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
